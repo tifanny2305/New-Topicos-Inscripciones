@@ -38,7 +38,7 @@ class MiAplicacion extends StatelessWidget {
 
         ChangeNotifierProvider(
           create: (_) =>
-              GrupoProvider(GrupoService(), LoginProvider(LoginService())),
+              GrupoProvider(GrupoService()),
         ),
 
         ChangeNotifierProvider(create: (_) => HistorialProvider(HistorialService())),

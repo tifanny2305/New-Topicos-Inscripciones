@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:inscripcion_topicos/providers/login_provider.dart';
 import '../models/materia.dart';
 import '../models/grupo.dart';
 import '../services/grupo_service.dart';
@@ -18,9 +17,9 @@ class MateriaConGrupos {
 
 class GrupoProvider with ChangeNotifier {
   final GrupoService _service;
-  final LoginProvider _loginProvider;
 
-  GrupoProvider(this._service, this._loginProvider);
+
+  GrupoProvider(this._service);
 
   List<MateriaConGrupos> _materiasConGrupos = [];
   bool _estaCargando = false;
@@ -55,19 +54,11 @@ class GrupoProvider with ChangeNotifier {
   bool get puedesContinuar => tieneAlMenosUnaSeleccionada && todasTienenCupo;
 
   // Métodos
-  Future<void> cargarGrupos(List<Materia> materias) async {
+  Future<void> cargarGrupos(List<Materia> materias,String token) async {
     _estaCargando = true;
     _error = null;
     _materiasConGrupos = [];
     notifyListeners();
-
-    final token = _loginProvider.token;
-    if (token == null || materias.isEmpty) {
-      _error = 'Token no disponible o sin materias';
-      _estaCargando = false;
-      notifyListeners();
-      return;
-    }
 
     try {
       final futures = materias.map((materia) async {

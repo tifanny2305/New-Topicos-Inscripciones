@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:inscripcion_topicos/providers/login_provider.dart';
 import 'package:inscripcion_topicos/services/materia_service.dart';
+import 'package:provider/provider.dart';
 import '../models/materia.dart';
 
 /// Provider responsable de manejar el estado y la lógica
@@ -98,6 +100,26 @@ class MateriaProvider with ChangeNotifier {
 
     notifyListeners();
   }
+
+   // Método auxiliar para construir la vista de error
+  Future<void> reintentarCargaMaterias(BuildContext context) async {
+    final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+    final materiaProvider = Provider.of<MateriaProvider>(
+      context,
+      listen: false,
+    );
+
+    final estudianteId = loginProvider.estudianteId;
+    final token = loginProvider.token;
+
+    if (estudianteId != null && token != null) {
+      await materiaProvider.cargarMaterias(estudianteId, token);
+    } else {
+      print('Error de sesión: ID o Token nulo. Redirigiendo a Login.');
+      Navigator.of(context).pushReplacementNamed('/');
+    }
+  }
+
 
   /// Aplica búsqueda por nombre o sigla.
   void aplicarTerminoBusqueda(String termino) {

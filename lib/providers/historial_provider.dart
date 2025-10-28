@@ -35,9 +35,6 @@ class HistorialProvider with ChangeNotifier {
     try {
       _historial = await _service.obtenerHistorial(estudianteId, token); 
       
-      // Ordenar el historial por gestión (ascendente)
-      _historial.sort((a, b) => a.gestionNombre.compareTo(b.gestionNombre));
-      
       _error = null;
     } catch (e) {
       _historial = [];

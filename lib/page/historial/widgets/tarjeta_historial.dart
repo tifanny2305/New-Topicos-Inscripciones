@@ -23,7 +23,7 @@ class HistorialTarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Formateo de la nota a 2 decimales
+    // Formateo de la nota a 1 decimal
     final notaFormateada = item.nota.toStringAsFixed(1);
     final colorNota = _getColorNota(item.nota);
 
@@ -67,7 +67,7 @@ class HistorialTarjeta extends StatelessWidget {
                 children: [
                   // Nombre de la Materia
                   Text(
-                    item.materiaNombre,
+                    item.materia,
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
@@ -77,47 +77,21 @@ class HistorialTarjeta extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   
-                  // Sigla y Créditos
-                  Row(
-                    children: [
-                      _infoChip(
-                        item.materiaSigla,
-                        Icons.tag,
-                        Colors.blueGrey.shade100,
-                        Colors.blueGrey.shade700,
-                      ),
-                      const SizedBox(width: 8),
-                      _infoChip(
-                        '${item.creditos} Créditos',
-                        Icons.star,
-                        Colors.amber.shade100,
-                        Colors.amber.shade700,
-                      ),
-                    ],
+                  // Info del grupo
+                  _infoChip(
+                    'Grupo ${item.grupoId}',
+                    Icons.group,
+                    Colors.blueGrey.shade100,
+                    Colors.blueGrey.shade700,
                   ),
                 ],
               ),
             ),
             
-            // Gestión (al final)
+            // Estado (al final)
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  'Gestión',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-                Text(
-                  item.gestionNombre,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
-                ),
                 // Muestra si está aprobado o reprobado
                 const SizedBox(height: 8),
                  Text(

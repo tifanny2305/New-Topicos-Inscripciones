@@ -4,6 +4,7 @@ import 'package:inscripcion_topicos/page/grupos/widgets/btn_continuar.dart';
 import 'package:inscripcion_topicos/providers/grupo_provider.dart';
 import 'package:inscripcion_topicos/page/grupos/widgets/barra_progreso.dart';
 import 'package:inscripcion_topicos/page/grupos/widgets/tarjeta_materia_grupo.dart';
+import 'package:inscripcion_topicos/providers/login_provider.dart';
 import 'package:provider/provider.dart';
 
 /// Página para seleccionar grupos de las materias elegidas
@@ -25,8 +26,20 @@ class _GruposPageState extends State<GruposPage> {
 
   /// Carga los grupos disponibles para las materias seleccionadas
   void _cargarGruposInicial() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<GrupoProvider>().cargarGrupos(widget.materias);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // ← Agrega async aquí
+      final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+      final grupoProvider = Provider.of<GrupoProvider>(context, listen: false);
+
+      final estudianteId = loginProvider.estudianteId;
+      final token = loginProvider.token;
+
+      if (estudianteId != null && token != null) {
+        await grupoProvider.cargarGrupos(widget.materias, token);
+      } else {
+        print('Error: Estudiante ID o Token es nulo. Redirigiendo a Login.');
+        Navigator.pushReplacementNamed(context, '/');
+      }
     });
   }
 
@@ -36,7 +49,11 @@ class _GruposPageState extends State<GruposPage> {
       appBar: AppBar(
         title: const Text(
           'Seleccionar Grupos',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         backgroundColor: Colors.blue.shade800,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -57,9 +74,7 @@ class _GruposPageState extends State<GruposPage> {
           return Column(
             children: [
               BarraProgreso(provider: provider),
-              Expanded(
-                child: _construirListaGrupos(provider),
-              ),
+              Expanded(child: _construirListaGrupos(provider)),
               BotonContinuar(provider: provider),
             ],
           );
@@ -76,11 +91,7 @@ class _GruposPageState extends State<GruposPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red.shade400,
-            ),
+            Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
             const SizedBox(height: 16),
             Text(
               'Error al cargar grupos',
@@ -98,13 +109,25 @@ class _GruposPageState extends State<GruposPage> {
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () => provider.cargarGrupos(widget.materias),
+              onPressed: () {
+                final loginProvider = Provider.of<LoginProvider>(
+                  context,
+                  listen: false,
+                );
+                final token = loginProvider.token;
+                if (token != null) {
+                  provider.cargarGrupos(widget.materias, token);
+                }
+              },
               icon: const Icon(Icons.refresh),
               label: const Text('Reintentar'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],

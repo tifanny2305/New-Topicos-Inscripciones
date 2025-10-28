@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:inscripcion_topicos/models/grupo.dart';
 import 'package:inscripcion_topicos/providers/grupo_provider.dart';
 
-/// Widget de tarjeta para mostrar información de un grupo
 class TarjetaGrupo extends StatelessWidget {
   final Grupo grupo;
   final MateriaConGrupos materiaConGrupos;
@@ -17,21 +16,22 @@ class TarjetaGrupo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final estaSeleccionado = materiaConGrupos.grupoSeleccionadoId == grupo.id;
+    final seleccionado = materiaConGrupos.grupoSeleccionadoId == grupo.id;
+    final disponible = grupo.cupo > 0;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      elevation: estaSeleccionado ? 3 : 1,
-      color: estaSeleccionado ? Colors.blue.shade50 : Colors.white,
+      elevation: seleccionado ? 3 : 1,
+      color: _getColorFondo(seleccionado, disponible),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: estaSeleccionado ? Colors.blue.shade200 : Colors.grey.shade200,
-          width: estaSeleccionado ? 2 : 1,
+          color: _getColorBorde(seleccionado, disponible),
+          width: seleccionado ? 2 : 1,
         ),
       ),
       child: InkWell(
-        onTap: () => _seleccionarGrupo(),
+        onTap: disponible ? () => _onTap() : null,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -41,20 +41,20 @@ class TarjetaGrupo extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _construirEncabezadoGrupo(estaSeleccionado),
+                    _buildTitulo(seleccionado, disponible),
                     const SizedBox(height: 8),
-                    _construirInformacionDocente(),
+                    _buildDocente(),
                     const SizedBox(height: 4),
-                    _construirHorarios(),
+                    _buildHorarios(),
                     const SizedBox(height: 8),
-                    _construirCupos(estaSeleccionado),
+                    _buildCupos(seleccionado, disponible),
                   ],
                 ),
               ),
               Radio<int>(
                 value: grupo.id,
                 groupValue: materiaConGrupos.grupoSeleccionadoId,
-                onChanged: (_) => _seleccionarGrupo(),
+                onChanged: disponible ? (_) => _onTap() : null,
                 activeColor: Colors.blue,
                 toggleable: true,
               ),
@@ -65,20 +65,32 @@ class TarjetaGrupo extends StatelessWidget {
     );
   }
 
-  /// Construye el encabezado con la sigla del grupo
-  Widget _construirEncabezadoGrupo(bool estaSeleccionado) {
+  Color _getColorFondo(bool seleccionado, bool disponible) {
+    if (seleccionado) return Colors.blue.shade50;
+    if (!disponible) return Colors.red.shade50;
+    return Colors.white;
+  }
+
+  Color _getColorBorde(bool seleccionado, bool disponible) {
+    if (!disponible) return Colors.red.shade100;
+    if (seleccionado) return Colors.blue.shade200;
+    return Colors.grey.shade200;
+  }
+
+  Widget _buildTitulo(bool seleccionado, bool disponible) {
     return Text(
       'Grupo ${grupo.sigla}',
       style: TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 16,
-        color: estaSeleccionado ? Colors.blue.shade900 : Colors.black87,
+        color: disponible
+            ? (seleccionado ? Colors.blue.shade900 : Colors.black87)
+            : Colors.grey,
       ),
     );
   }
 
-  /// Construye la información del docente
-  Widget _construirInformacionDocente() {
+  Widget _buildDocente() {
     if (grupo.docente == null) return const SizedBox.shrink();
 
     return Row(
@@ -88,10 +100,7 @@ class TarjetaGrupo extends StatelessWidget {
         Expanded(
           child: Text(
             grupo.docente!.nombre,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade700,
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -99,8 +108,7 @@ class TarjetaGrupo extends StatelessWidget {
     );
   }
 
-  /// Construye la lista de horarios
-  Widget _construirHorarios() {
+  Widget _buildHorarios() {
     if (grupo.horarios.isEmpty) {
       return Text(
         'Sin horarios definidos',
@@ -114,7 +122,7 @@ class TarjetaGrupo extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: grupo.horarios.map((horario) {
+      children: grupo.horarios.map((h) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 2),
           child: Row(
@@ -122,11 +130,8 @@ class TarjetaGrupo extends StatelessWidget {
               Icon(Icons.access_time, size: 12, color: Colors.grey.shade600),
               const SizedBox(width: 4),
               Text(
-                '${horario.dia}: ${_formatearHora(horario.horaInicio)} - ${_formatearHora(horario.horaFin)}',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey.shade700,
-                ),
+                '${h.dia}: ${h.horaInicio.substring(0, 5)} - ${h.horaFin.substring(0, 5)}',
+                style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
               ),
             ],
           ),
@@ -135,29 +140,34 @@ class TarjetaGrupo extends StatelessWidget {
     );
   }
 
-  /// Construye la información de cupos disponibles
-  Widget _construirCupos(bool estaSeleccionado) {
+  Widget _buildCupos(bool seleccionado, bool disponible) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: estaSeleccionado ? Colors.blue.shade100 : Colors.grey.shade100,
+        color: disponible
+            ? (seleccionado ? Colors.blue.shade100 : Colors.grey.shade100)
+            : Colors.red.shade100,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.people,
+            disponible ? Icons.people : Icons.do_not_disturb_on_outlined,
             size: 12,
-            color: estaSeleccionado ? Colors.blue.shade700 : Colors.grey.shade700,
+            color: disponible
+                ? (seleccionado ? Colors.blue.shade700 : Colors.grey.shade700)
+                : Colors.red.shade700,
           ),
           const SizedBox(width: 4),
           Text(
-            '${grupo.cupo} cupos disponibles',
+            disponible ? '${grupo.cupo} cupos disponibles' : 'Sin cupos disponibles',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: estaSeleccionado ? Colors.blue.shade700 : Colors.grey.shade700,
+              color: disponible
+                  ? (seleccionado ? Colors.blue.shade700 : Colors.grey.shade700)
+                  : Colors.red.shade700,
             ),
           ),
         ],
@@ -165,13 +175,7 @@ class TarjetaGrupo extends StatelessWidget {
     );
   }
 
-  /// Formatea la hora eliminando segundos
-  String _formatearHora(String hora) {
-    return hora.substring(0, 5);
-  }
-
-  /// Selecciona o deselecciona el grupo
-  void _seleccionarGrupo() {
+  void _onTap() {
     provider.seleccionarGrupo(materiaConGrupos.materia.id, grupo.id);
   }
 }

@@ -128,11 +128,11 @@ class _PerfilPageState extends State<PerfilPage> {
                       const SizedBox(height: 12),
 
                       // Tarjeta Plan de Estudio
-                      TarjetaDetalle(
+                      /*TarjetaDetalle(
                         icon: Icons.assignment_ind,
                         title: 'Plan de Estudio',
                         subtitle: 'ID: ${perfil.plan_estudio_id}',
-                      ),
+                      ),*/
 
                       // Tarjeta Código de Acceso
                       TarjetaDetalle(
