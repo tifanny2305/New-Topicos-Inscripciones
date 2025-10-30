@@ -39,7 +39,10 @@ class EstadoExitoso extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/home',
+                  (route) => false,
+                );
               },
               icon: const Icon(Icons.home),
               label: const Text('Volver al inicio'),

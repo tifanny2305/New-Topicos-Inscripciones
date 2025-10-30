@@ -20,14 +20,10 @@ class _PerfilPageState extends State<PerfilPage> {
     _cargarPerfilInicialmente();
   }
 
-  /// Llama al provider para cargar el perfil usando el ID y Token del LoginProvider
   void _cargarPerfilInicialmente() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final loginProvider = Provider.of<LoginProvider>(context, listen: false);
-      final perfilProvider = Provider.of<PerfilProvider>(
-        context,
-        listen: false,
-      );
+      final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
 
       final estudianteId = loginProvider.estudianteId;
       final token = loginProvider.token;
@@ -35,7 +31,6 @@ class _PerfilPageState extends State<PerfilPage> {
       if (estudianteId != null && token != null) {
         await perfilProvider.cargarPerfil(estudianteId, token);
       } else {
-        // En caso de error crítico (no hay token/ID), redirigir a Login
         if (mounted) {
           loginProvider.cerrarSesion();
           Navigator.pushReplacementNamed(context, '/');
@@ -44,11 +39,44 @@ class _PerfilPageState extends State<PerfilPage> {
     });
   }
 
+  Future<void> _confirmarCerrarSesion() async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cerrar Sesión'),
+          content: const Text('¿Estás seguro que deseas cerrar sesión?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Cerrar Sesión'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar == true && mounted) {
+      await context.read<LoginProvider>().cerrarSesion();
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi Perfil', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text(
+          'Mi Perfil',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         backgroundColor: Colors.blue.shade800,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -83,10 +111,12 @@ class _PerfilPageState extends State<PerfilPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Encabezado del perfil
-                Encabezado(perfil: perfil),
+                Encabezado(
+                  perfil: perfil,
+                  onLogout: _confirmarCerrarSesion,
+                ),
 
-                // Información de Contacto y Plan
+                // Información de Contacto
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -102,44 +132,17 @@ class _PerfilPageState extends State<PerfilPage> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Tarjeta Email
                       TarjetaDetalle(
                         icon: Icons.email,
                         title: 'Correo Electrónico',
                         subtitle: perfil.email,
                       ),
 
-                      // Tarjeta Telefono
                       TarjetaDetalle(
                         icon: Icons.phone,
                         title: 'Teléfono',
                         subtitle: perfil.telefono,
                       ),
-
-                      const SizedBox(height: 20),
-                      /*const Text(
-                        'Información Académica',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 12),*/
-
-                      // Tarjeta Plan de Estudio
-                      /*TarjetaDetalle(
-                        icon: Icons.assignment_ind,
-                        title: 'Plan de Estudio',
-                        subtitle: 'ID: ${perfil.plan_estudio_id}',
-                      ),*/
-
-                      // Tarjeta Codigo de Acceso
-                      /*TarjetaDetalle(
-                        icon: Icons.lock,
-                        title: 'Código de Acceso',
-                        subtitle: perfil.codigo,
-                      ),*/
                     ],
                   ),
                 ),
@@ -148,8 +151,7 @@ class _PerfilPageState extends State<PerfilPage> {
           );
         },
       ),
-      // btn navegacion
-      bottomNavigationBar: const BarraInferior(indiceActual: 2),
+      bottomNavigationBar: const BarraInferior(indiceActual: 3),
     );
   }
 }

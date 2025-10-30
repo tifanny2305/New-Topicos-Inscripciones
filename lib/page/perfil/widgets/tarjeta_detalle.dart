@@ -26,7 +26,7 @@ class TarjetaDetalle extends StatelessWidget {
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(color: Colors.grey),
+          style: const TextStyle(color: Colors.grey, fontSize: 13),
         ),
       ),
     );

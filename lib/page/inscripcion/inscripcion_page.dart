@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../providers/inscripcion_provider.dart';
 import '../../providers/login_provider.dart';
 
-
 class InscripcionPage extends StatelessWidget {
   final List<Map<String, dynamic>> gruposSeleccionados;
 
@@ -55,10 +54,19 @@ class InscripcionPage extends StatelessWidget {
     );
 
     try {
-      await inscripcionProvider.crearInscripcion(request, loginProvider.token!);
+      // Capturar el transactionId retornado
+      final transactionId = await inscripcionProvider.crearInscripcion(
+        request,
+        loginProvider.token!,
+      );
 
       if (context.mounted) {
-        Navigator.pushReplacementNamed(context, '/estado-inscripcion');
+        // Navegar con el transactionId
+        Navigator.pushReplacementNamed(
+          context,
+          '/estado-inscripcion',
+          arguments: transactionId,
+        );
       }
     } catch (e) {
       if (context.mounted) {

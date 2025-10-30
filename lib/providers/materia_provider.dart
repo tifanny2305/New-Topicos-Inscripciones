@@ -61,6 +61,8 @@ class MateriaProvider with ChangeNotifier {
     _establecerCarga(true);
 
     try {
+      _materiasSeleccionadas.clear();
+
       final listado = await _servicioMateria.obtenerMaterias(
         estudianteId,
         token,

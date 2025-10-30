@@ -4,140 +4,108 @@ import 'package:inscripcion_topicos/models/inscripcion/estado/estado_response.da
 import 'package:inscripcion_topicos/models/inscripcion/inscripcion_request.dart';
 import '../services/inscripcion_service.dart';
 
+class TransaccionInfo {
+  EstadoResponse? estadoActual;
+  final String transactionId;
+  String? error;
+  int intentosPolling;
+
+  TransaccionInfo({
+    required this.transactionId,
+    this.estadoActual,
+    this.error,
+    this.intentosPolling = 0,
+  });
+
+  bool get esProcesando => estadoActual?.esProcesando == true && error == null;
+  bool get esExitoso => estadoActual?.esExitoso == true && error == null;
+}
+
 class InscripcionProvider with ChangeNotifier {
   final InscripcionService _service;
-
-  InscripcionProvider(this._service);
-
-  // Estado
-  EstadoResponse? _estadoActual;
-  String? _transactionIdActual;
-  bool _cargando = false;
-  String? _error;
+  final List<TransaccionInfo> _transacciones = [];
   Timer? _pollingTimer;
-  int _intentosPolling = 0;
+  bool _cargando = false;
 
-  // Configuración
   static const int _maxIntentos = 10;
   static const Duration _intervaloPolling = Duration(seconds: 7);
 
-  // Getters
-  EstadoResponse? get estadoActual => _estadoActual;
-  String? get transactionId => _transactionIdActual;
-  bool get cargando => _cargando;
-  String? get error => _error;
-  int get intentosPolling => _intentosPolling;
+  InscripcionProvider(this._service);
 
-  /// Crea una nueva inscripción e inicia el polling
-  Future<void> crearInscripcion(InscripcionRequest request, String token) async {
+  // GETTERS
+  List<TransaccionInfo> get transacciones => _transacciones;
+  bool get cargando => _cargando;
+  bool get hayInscripcionPendiente => _transacciones.any((t) => t.esProcesando);
+
+  /// Crea una inscripción y retorna el transactionId
+  Future<String> crearInscripcion(InscripcionRequest request, String token) async {
     _cargando = true;
-    _error = null;
-    _intentosPolling = 0;
     notifyListeners();
 
     try {
       print('📝 Creando inscripción...');
       final response = await _service.crear(request, token);
+      print('✅ Transaction ID: ${response.transactionId}');
       
-      print('✅ Inscripción creada. Transaction ID: ${response.transactionId}');
-      
-      _transactionIdActual = response.transactionId;
-      
-      // Estado inicial: procesando
-      _estadoActual = EstadoResponse(
-        estado: 'procesando',
-        datos: null,
+      final nuevaTransaccion = TransaccionInfo(
+        transactionId: response.transactionId,
+        estadoActual: EstadoResponse(estado: 'procesando', datos: null),
       );
+      
+      _transacciones.add(nuevaTransaccion);
 
       _cargando = false;
       notifyListeners();
 
-      // Iniciar polling después de notificar
-      print('🔄 Iniciando polling...');
       _iniciarPolling(token);
-
+      
+      // Retornar el transactionId
+      return response.transactionId;
+      
     } catch (e) {
-      print('❌ Error al crear inscripción: $e');
-      _error = e.toString();
+      print('❌ Error: $e');
       _cargando = false;
       notifyListeners();
       rethrow;
     }
   }
 
-  /// Consulta el estado actual
-  Future<void> consultarEstado(String token) async {
-    if (_transactionIdActual == null) {
-      print('⚠️ No hay transaction ID para consultar');
-      return;
-    }
-
-    try {
-      _intentosPolling++;
-      print('🔍 Consultando estado (intento $_intentosPolling/$_maxIntentos)...');
-      
-      final estado = await _service.consultarEstado(_transactionIdActual!, token);
-      _estadoActual = estado;
-
-      print('📊 Estado recibido: ${estado.estado}');
-      
-      // Detener si ya procesó o llegó al límite
-      if (estado.esProcesado) {
-        print('✅ Inscripción procesada exitosamente');
-        detenerPolling();
-      } else if (_intentosPolling >= _maxIntentos) {
-        print('⏱️ Se alcanzó el límite de intentos');
-        detenerPolling();
-        _error = 'El servidor está tardando más de lo normal. '
-                 'Por favor, verifica tu inscripción más tarde.';
-      }
-
-      notifyListeners();
-    } catch (e) {
-      print('❌ Error al consultar estado: $e');
-      _error = e.toString();
-      detenerPolling();
-      notifyListeners();
-    }
-  }
-
   void _iniciarPolling(String token) {
-    detenerPolling();
+    _pollingTimer?.cancel();
+    _pollingTimer = Timer.periodic(_intervaloPolling, (_) => _consultarTodas(token));
+    Future.delayed(const Duration(seconds: 2), () => _consultarTodas(token));
+  }
+
+  Future<void> _consultarTodas(String token) async {
+    final pendientes = _transacciones.where((t) => t.esProcesando).toList();
     
-    // Primera consulta inmediata
-    Future.delayed(const Duration(seconds: 2), () {
-      if (_transactionIdActual != null) {
-        consultarEstado(token);
+    for (var t in pendientes) {
+      if (t.intentosPolling >= _maxIntentos) {
+        t.error = 'Tiempo de espera excedido';
+        continue;
       }
-    });
-    
-    // Luego consultas periódicas
-    _pollingTimer = Timer.periodic(_intervaloPolling, (_) {
-      consultarEstado(token);
-    });
-  }
 
-  void detenerPolling() {
-    if (_pollingTimer != null) {
-      print('🛑 Deteniendo polling');
-      _pollingTimer?.cancel();
-      _pollingTimer = null;
+      try {
+        t.intentosPolling++;
+        print('🔍 Consultando ${t.transactionId} (${t.intentosPolling}/$_maxIntentos)');
+        t.estadoActual = await _service.consultarEstado(t.transactionId, token);
+      } catch (e) {
+        t.error = e.toString();
+      }
     }
+
+    if (pendientes.isEmpty) _pollingTimer?.cancel();
+    notifyListeners();
   }
 
-  void limpiarEstado() {
-    detenerPolling();
-    _estadoActual = null;
-    _transactionIdActual = null;
-    _error = null;
-    _cargando = false;
-    _intentosPolling = 0;
+  void limpiarCompletadas() {
+    _transacciones.removeWhere((t) => !t.esProcesando);
     notifyListeners();
   }
 
   @override
   void dispose() {
-    detenerPolling();
+    _pollingTimer?.cancel();
     super.dispose();
   }
 }

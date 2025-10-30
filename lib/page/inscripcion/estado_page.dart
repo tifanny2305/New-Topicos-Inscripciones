@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:inscripcion_topicos/providers/login_provider.dart';
 import 'package:provider/provider.dart';
 import '../../providers/inscripcion_provider.dart';
 import 'widgets/estado_procesando.dart';
@@ -11,6 +10,9 @@ class EstadoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Obtener el transactionId de los argumentos de la ruta
+    final String? transactionId = ModalRoute.of(context)?.settings.arguments as String?;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -19,17 +21,6 @@ class EstadoPage extends StatelessWidget {
         ),
         backgroundColor: Colors.blue.shade800,
         iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              final token = context.read<LoginProvider>().token;
-              if (token != null) {
-                context.read<InscripcionProvider>().consultarEstado(token);
-              }
-            },
-          ),
-        ],
       ),
       body: Consumer<InscripcionProvider>(
         builder: (context, provider, _) {
@@ -37,36 +28,47 @@ class EstadoPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (provider.error != null) {
-            return EstadoError(
-              mensaje: provider.error!,
-              onReintentar: () {
-                final token = context.read<LoginProvider>().token;
-                if (token != null) {
-                  provider.consultarEstado(token);
-                }
-              },
+          // Si no hay transactionId, mostrar error
+          if (transactionId == null) {
+            return const Center(
+              child: Text('No se especificó una inscripción'),
             );
           }
 
-          if (provider.estadoActual == null) {
-            return const Center(child: Text('No hay inscripción en proceso'));
+          // Buscar la transacción específica
+          final transaccion = provider.transacciones.firstWhere(
+            (t) => t.transactionId == transactionId,
+            orElse: () => TransaccionInfo(
+              transactionId: transactionId,
+              error: 'Transacción no encontrada',
+            ),
+          );
+
+          // Error en la transacción
+          if (transaccion.error != null) {
+            return EstadoError(
+              mensaje: transaccion.error!,
+              onReintentar: () => Navigator.pop(context),
+            );
           }
 
-          final estado = provider.estadoActual!;
-
-          if (estado.esProcesando) {
+          // Procesando
+          if (transaccion.esProcesando) {
             return EstadoProcesando(
-              transactionId: provider.transactionId!,
-              intentos: provider.intentosPolling,
+              transactionId: transaccion.transactionId,
+              intentos: transaccion.intentosPolling,
               maxIntentos: 10,
             );
           }
 
-          if (estado.esProcesado && estado.esExitoso) {
-            return EstadoExitoso(inscripcionId: estado.inscripcionId!);
+          // Exitoso
+          if (transaccion.esExitoso && transaccion.estadoActual?.inscripcionId != null) {
+            return EstadoExitoso(
+              inscripcionId: transaccion.estadoActual!.inscripcionId!,
+            );
           }
 
+          // Fallido
           return EstadoError(
             mensaje: 'La inscripción no se pudo completar',
             onReintentar: () => Navigator.pop(context),

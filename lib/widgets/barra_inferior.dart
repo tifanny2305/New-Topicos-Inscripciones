@@ -13,12 +13,15 @@ class BarraInferior extends StatelessWidget {
 
     switch (indice) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/materias');
+        Navigator.pushReplacementNamed(context, '/home');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/historial');
+        Navigator.pushReplacementNamed(context, '/materias');
         break;
       case 2:
+        Navigator.pushReplacementNamed(context, '/historial');
+        break;
+      case 3:
         Navigator.pushReplacementNamed(context, '/perfil');
         break;
     }
@@ -33,6 +36,10 @@ class BarraInferior extends StatelessWidget {
       unselectedItemColor: Colors.grey.shade600,
       type: BottomNavigationBarType.fixed,
       items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Inicio',
+        ),
         BottomNavigationBarItem(
           icon: Icon(Icons.school),
           label: 'Materias',

@@ -96,7 +96,7 @@ class _MateriasPageState extends State<MateriasPage> {
             },
           ),
           // BottomNavigationBar aquí dentro del Scaffold
-          const BarraInferior(indiceActual: 0),
+          const BarraInferior(indiceActual: 1),
         ],
       ),
     );

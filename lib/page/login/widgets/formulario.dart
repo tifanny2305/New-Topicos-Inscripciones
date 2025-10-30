@@ -70,10 +70,11 @@ class FormularioWidget extends StatelessWidget {
                     ),
                   )
                 : const Text(
-                    'INGRESAR',
+                    'Ingresar',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(221, 20, 20, 20),
                     ),
                   ),
           ),

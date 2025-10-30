@@ -1,157 +1,217 @@
-/*import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/inscripcion_provider.dart';
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import '../../providers/inscripcion_provider.dart';
 
-class NotificacionListener extends StatefulWidget {
-  final Widget child;
+// class NotificacionesPage extends StatelessWidget {
+//   const NotificacionesPage({Key? key}) : super(key: key);
 
-  const NotificacionListener({Key? key, required this.child}) : super(key: key);
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text(
+//           'Estado de Inscripción',
+//           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+//         ),
+//         backgroundColor: Colors.blue.shade800,
+//         iconTheme: const IconThemeData(color: Colors.white),
+//       ),
+//       body: Consumer<InscripcionProvider>(
+//         builder: (context, provider, _) {
+//           // Si no hay inscripción activa
+//           if (provider.estadoActual == null) {
+//             return Center(
+//               child: Column(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   Icon(
+//                     Icons.notifications_none,
+//                     size: 80,
+//                     color: Colors.grey.shade300,
+//                   ),
+//                   const SizedBox(height: 16),
+//                   Text(
+//                     'No hay inscripciones en proceso',
+//                     style: TextStyle(
+//                       fontSize: 16,
+//                       color: Colors.grey.shade600,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             );
+//           }
 
-  @override
-  State<NotificacionListener> createState() => _NotificacionListenerState();
-}
+//           final estado = provider.estadoActual!;
+//           final esExitoso = estado.esExitoso;
+//           final esPendiente = estado.esProcesando;
+//           final tieneError = provider.error != null;
 
-class _NotificacionListenerState extends State<NotificacionListener> {
-  TransaccionInscripcion? _last;
+//           // Determinar color y estado
+//           Color colorEstado;
+//           IconData iconoEstado;
+//           String textoEstado;
 
-  @override
-  Widget build(BuildContext context) {
-    // Usar Consumer para asegurarnos que el provider ya está disponible
-    return Consumer<InscripcionProvider>(
-      builder: (context, provider, _) {
-        // registrar callback (idempotente)
-        provider.onTransaccionCompletada = _mostrarNotificacion;
-        return widget.child;
-      },
-    );
-  }
+//           if (tieneError) {
+//             colorEstado = Colors.red;
+//             iconoEstado = Icons.error;
+//             textoEstado = 'Error';
+//           } else if (esPendiente) {
+//             colorEstado = Colors.orange;
+//             iconoEstado = Icons.pending;
+//             textoEstado = 'Procesando';
+//           } else if (esExitoso) {
+//             colorEstado = Colors.green;
+//             iconoEstado = Icons.check_circle;
+//             textoEstado = 'Completada';
+//           } else {
+//             colorEstado = Colors.red;
+//             iconoEstado = Icons.error;
+//             textoEstado = 'Fallida';
+//           }
 
-  void _mostrarNotificacion(TransaccionInscripcion transaccion) {
-    // evitar mostrar la misma notificación repetida
-    if (!mounted) return;
-    if (_last != null && _last!.transactionId == transaccion.transactionId) return;
-    _last = transaccion;
+//           return Padding(
+//             padding: const EdgeInsets.all(16),
+//             child: Card(
+//               elevation: 4,
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(16),
+//               ),
+//               child: Padding(
+//                 padding: const EdgeInsets.all(20),
+//                 child: Column(
+//                   mainAxisSize: MainAxisSize.min,
+//                   children: [
+//                     // Icono grande
+//                     Container(
+//                       width: 80,
+//                       height: 80,
+//                       decoration: BoxDecoration(
+//                         color: colorEstado.withOpacity(0.1),
+//                         shape: BoxShape.circle,
+//                       ),
+//                       child: Icon(
+//                         iconoEstado,
+//                         color: colorEstado,
+//                         size: 40,
+//                       ),
+//                     ),
+//                     const SizedBox(height: 16),
 
-    final esExitosa = transaccion.estaProcesado;
-    final cantidadMaterias = transaccion.gruposIds.length;
+//                     // Estado
+//                     Text(
+//                       textoEstado,
+//                       style: TextStyle(
+//                         fontSize: 24,
+//                         fontWeight: FontWeight.bold,
+//                         color: colorEstado,
+//                       ),
+//                     ),
+//                     const SizedBox(height: 8),
 
-    // obtener un context válido desde la navigatorKey (MaterialApp tiene la key)
-    final ctx = navigatorKey.currentContext ?? context;
+//                     // Mensaje
+//                     if (tieneError)
+//                       Text(
+//                         provider.error!,
+//                         style: TextStyle(
+//                           fontSize: 14,
+//                           color: Colors.grey.shade700,
+//                         ),
+//                         textAlign: TextAlign.center,
+//                       )
+//                     else if (esPendiente)
+//                       Column(
+//                         children: [
+//                           const Text(
+//                             'Tu inscripción está siendo procesada',
+//                             style: TextStyle(fontSize: 14),
+//                             textAlign: TextAlign.center,
+//                           ),
+//                           const SizedBox(height: 16),
+//                           LinearProgressIndicator(
+//                             value: provider.intentosPolling / 10,
+//                             backgroundColor: Colors.grey.shade200,
+//                             color: Colors.orange,
+//                           ),
+//                           const SizedBox(height: 8),
+//                           Text(
+//                             'Intento ${provider.intentosPolling} de 10',
+//                             style: TextStyle(
+//                               fontSize: 12,
+//                               color: Colors.grey.shade600,
+//                             ),
+//                           ),
+//                         ],
+//                       )
+//                     else if (esExitoso)
+//                       Text(
+//                         estado.datos?.message ?? '¡Inscripción completada exitosamente!',
+//                         style: TextStyle(
+//                           fontSize: 14,
+//                           color: Colors.grey.shade700,
+//                         ),
+//                         textAlign: TextAlign.center,
+//                       )
+//                     else
+//                       Text(
+//                         'La inscripción no se pudo completar',
+//                         style: TextStyle(
+//                           fontSize: 14,
+//                           color: Colors.grey.shade700,
+//                         ),
+//                         textAlign: TextAlign.center,
+//                       ),
 
-    // Dialog
-    showDialog(
-      context: ctx,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: esExitosa ? Colors.green.shade100 : Colors.orange.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                esExitosa ? Icons.check_circle : Icons.warning,
-                color: esExitosa ? Colors.green.shade700 : Colors.orange.shade700,
-                size: 32,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                esExitosa ? '¡Inscripción Exitosa!' : 'Inscripción Procesada',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: esExitosa ? Colors.green.shade700 : Colors.orange.shade700,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              esExitosa
-                  ? 'Tu inscripción de $cantidadMaterias ${cantidadMaterias == 1 ? 'materia' : 'materias'} se completó correctamente.'
-                  : transaccion.mensaje ?? 'Tu inscripción ha sido procesada con observaciones.',
-              style: const TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            /*Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              /*child: Row(
-                children: [
-                  Icon(Icons.info_outline, size: 16, color: Colors.grey.shade600),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'ID: ${transaccion.transactionId.substring(0, 8)}...',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey.shade700,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                  ),
-                ],
-              ),*/
-            ),*/
-          ],
-        ),
-        actions: [
-          if (!esExitosa)
-            TextButton(
-              onPressed: () => navigatorKey.currentState?.pop(),
-              child: const Text('Ver detalles'),
-            ),
-          ElevatedButton(
-            onPressed: () => navigatorKey.currentState?.pop(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: esExitosa ? Colors.green : Colors.orange,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text('Aceptar'),
-          ),
-        ],
-      ),
-    );
+//                     const SizedBox(height: 24),
 
-    // Snack via scaffoldMessengerKey
-    final messenger = scaffoldMessengerKey.currentState;
-    if (messenger != null) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(esExitosa ? Icons.check_circle : Icons.warning, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  esExitosa ? 'Inscripción completada exitosamente' : 'Inscripción procesada con observaciones',
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: esExitosa ? Colors.green : Colors.orange,
-          duration: const Duration(seconds: 4),
-          action: SnackBarAction(
-            label: 'Ver',
-            textColor: Colors.white,
-            onPressed: () {
-              // ir a detalle si quieres
-            },
-          ),
-        ),
-      );
-    }
-  }
-}*/
+//                     // Botón de acción
+//                     if (esExitoso || tieneError)
+//                       SizedBox(
+//                         width: double.infinity,
+//                         child: ElevatedButton.icon(
+//                           onPressed: () {
+//                             Navigator.pushNamedAndRemoveUntil(
+//                               context,
+//                               '/materias',
+//                               (route) => false,
+//                             );
+//                           },
+//                           icon: const Icon(Icons.arrow_back),
+//                           label: const Text('Volver a Materias'),
+//                           style: ElevatedButton.styleFrom(
+//                             backgroundColor: colorEstado,
+//                             foregroundColor: Colors.white,
+//                             padding: const EdgeInsets.symmetric(vertical: 12),
+//                           ),
+//                         ),
+//                       )
+//                     else if (esPendiente)
+//                       SizedBox(
+//                         width: double.infinity,
+//                         child: OutlinedButton.icon(
+//                           onPressed: () {
+//                             Navigator.pushNamedAndRemoveUntil(
+//                               context,
+//                               '/materias',
+//                               (route) => false,
+//                             );
+//                           },
+//                           icon: const Icon(Icons.arrow_back),
+//                           label: const Text('Volver a Materias'),
+//                           style: OutlinedButton.styleFrom(
+//                             foregroundColor: Colors.blue,
+//                             side: BorderSide(color: Colors.blue.shade300),
+//                             padding: const EdgeInsets.symmetric(vertical: 12),
+//                           ),
+//                         ),
+//                       ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }

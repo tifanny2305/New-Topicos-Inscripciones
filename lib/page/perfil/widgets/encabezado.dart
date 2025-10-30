@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:inscripcion_topicos/models/estudiante.dart';
 
-/// Widget que muestra el encabezado del perfil con foto y nombre
 class Encabezado extends StatelessWidget {
   final Estudiante perfil;
+  final VoidCallback? onLogout;
 
   const Encabezado({
     Key? key,
     required this.perfil,
+    this.onLogout,
   }) : super(key: key);
 
   @override
@@ -43,6 +44,7 @@ class Encabezado extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
@@ -52,6 +54,23 @@ class Encabezado extends StatelessWidget {
               color: Colors.blue.shade100,
             ),
           ),
+          
+          if (onLogout != null) ...[
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: onLogout,
+              icon: const Icon(Icons.logout, size: 18),
+              label: const Text('Cerrar Sesión'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white70),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

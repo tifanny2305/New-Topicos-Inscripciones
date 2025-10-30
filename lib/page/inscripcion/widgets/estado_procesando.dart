@@ -30,29 +30,29 @@ class EstadoProcesando extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'ID: $transactionId',
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-            const SizedBox(height: 16),
-            LinearProgressIndicator(
-              value: intentos / maxIntentos,
-              backgroundColor: Colors.grey.shade200,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Intento $intentos de $maxIntentos',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            const SizedBox(height: 24),
             const Text(
               'Esto puede tardar unos segundos...',
               style: TextStyle(fontSize: 14),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/home',
+                  (route) => false,
+                );
+              },
+              icon: const Icon(Icons.home),
+              label: const Text('Volver al inicio'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueGrey,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
             ),
           ],
         ),

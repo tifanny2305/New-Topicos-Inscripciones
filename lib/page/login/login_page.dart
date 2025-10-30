@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (mounted) {
       if (exito) {
-        Navigator.pushReplacementNamed(context, '/materias');
+        Navigator.pushReplacementNamed(context, '/home');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -55,7 +55,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // EL MÉTODO BUILD AHORA ES EXTREMADAMENTE SIMPLE Y CLARO
     return Scaffold(
       body: SafeArea(
         child: Center(

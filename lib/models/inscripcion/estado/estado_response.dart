@@ -11,7 +11,6 @@ class EstadoResponse {
   });
 
   factory EstadoResponse.fromJson(Map<String, dynamic> json) {
-    // La respuesta viene con "Solicitud" como key principal
     final solicitud = json['Solicitud'] as Map<String, dynamic>?;
     
     if (solicitud == null) {

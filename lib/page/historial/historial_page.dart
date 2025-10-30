@@ -126,7 +126,7 @@ class _HistorialPageState extends State<HistorialPage> {
       ),
       
       // BottomNavigationBar aquí dentro del Scaffold
-      bottomNavigationBar: const BarraInferior(indiceActual: 1),
+      bottomNavigationBar: const BarraInferior(indiceActual: 2),
     );
   }
 }

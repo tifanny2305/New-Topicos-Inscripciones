@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inscripcion_topicos/models/materia.dart';
 import 'package:inscripcion_topicos/page/grupos/grupos_page.dart';
 import 'package:inscripcion_topicos/page/historial/historial_page.dart';
+import 'package:inscripcion_topicos/page/home_page.dart';
 import 'package:inscripcion_topicos/page/inscripcion/estado_page.dart';
 import 'package:inscripcion_topicos/page/inscripcion/inscripcion_page.dart';
 import 'package:inscripcion_topicos/page/login/login_page.dart';
@@ -19,6 +20,8 @@ import 'package:inscripcion_topicos/services/inscripcion_service.dart';
 import 'package:inscripcion_topicos/services/login_service.dart';
 import 'package:inscripcion_topicos/services/materia_service.dart';
 import 'package:inscripcion_topicos/services/perfil_service.dart';
+//import 'package:inscripcion_topicos/widgets/notificacion.dart';
+import 'package:inscripcion_topicos/widgets/notificacion/notifiacaion_page.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -54,6 +57,7 @@ class MiAplicacion extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         routes: {
           '/': (context) => const LoginPage(),
+          '/home': (contex) => const HomePage(),
           '/materias': (context) => const MateriasPage(),
           '/perfil': (context) => const PerfilPage(),
           '/grupos': (context) {
@@ -69,6 +73,7 @@ class MiAplicacion extends StatelessWidget {
             return InscripcionPage(gruposSeleccionados: grupos);
           },
           '/estado-inscripcion': (context) => const EstadoPage(),
+          '/notificaciones': (context) => const NotificacionesPage(),
         },
       ),
     );

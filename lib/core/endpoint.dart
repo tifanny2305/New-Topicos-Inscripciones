@@ -1,5 +1,5 @@
 class Endpoints {
-  static const String baseUrl = 'https://cc658ee0ba09.ngrok-free.app/api';
+  static const String baseUrl = 'http://34.57.70.233:80/api';
   //static const String baseUrl = 'http://localhost:3005/api';
 
   //loguin
