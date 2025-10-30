@@ -109,7 +109,7 @@ class _PerfilPageState extends State<PerfilPage> {
                         subtitle: perfil.email,
                       ),
 
-                      // Tarjeta Teléfono
+                      // Tarjeta Telefono
                       TarjetaDetalle(
                         icon: Icons.phone,
                         title: 'Teléfono',
@@ -117,7 +117,7 @@ class _PerfilPageState extends State<PerfilPage> {
                       ),
 
                       const SizedBox(height: 20),
-                      const Text(
+                      /*const Text(
                         'Información Académica',
                         style: TextStyle(
                           fontSize: 18,
@@ -125,7 +125,7 @@ class _PerfilPageState extends State<PerfilPage> {
                           color: Colors.black87,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 12),*/
 
                       // Tarjeta Plan de Estudio
                       /*TarjetaDetalle(
@@ -134,12 +134,12 @@ class _PerfilPageState extends State<PerfilPage> {
                         subtitle: 'ID: ${perfil.plan_estudio_id}',
                       ),*/
 
-                      // Tarjeta Código de Acceso
-                      TarjetaDetalle(
+                      // Tarjeta Codigo de Acceso
+                      /*TarjetaDetalle(
                         icon: Icons.lock,
                         title: 'Código de Acceso',
                         subtitle: perfil.codigo,
-                      ),
+                      ),*/
                     ],
                   ),
                 ),
@@ -148,7 +148,7 @@ class _PerfilPageState extends State<PerfilPage> {
           );
         },
       ),
-      // BottomNavigationBar aquí dentro del Scaffold
+      // btn navegacion
       bottomNavigationBar: const BarraInferior(indiceActual: 2),
     );
   }

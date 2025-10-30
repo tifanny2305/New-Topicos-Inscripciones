@@ -1,6 +1,6 @@
 class Historial {
   final String materia;
-  final double nota;
+  final double? nota; // <--- ¡Cambiado a nullable!
   final int grupoId;
 
   Historial({
@@ -11,9 +11,15 @@ class Historial {
 
   factory Historial.fromJson(Map<String, dynamic> json) {
     final notaRaw = json['nota'];
-    final notaDouble = notaRaw is double 
-        ? notaRaw 
-        : double.tryParse(notaRaw?.toString() ?? '0.0') ?? 0.0;
+    double? notaDouble;
+
+    if (notaRaw != null) {
+      if (notaRaw is double) {
+        notaDouble = notaRaw;
+      } else {
+        notaDouble = double.tryParse(notaRaw.toString()); 
+      }
+    }
 
     return Historial(
       materia: json['materia'] as String? ?? 'Sin nombre',

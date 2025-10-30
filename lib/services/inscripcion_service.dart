@@ -1,20 +1,22 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:inscripcion_topicos/models/inscripcion/estado_response.dart';
+import 'package:inscripcion_topicos/models/inscripcion/estado/estado_response.dart';
 import 'package:inscripcion_topicos/models/inscripcion/inscripcion_request.dart';
 import 'package:inscripcion_topicos/models/inscripcion/inscripcion_response.dart';
 import '../core/endpoint.dart';
 
-/// Servicio responsable SOLO de la comunicación con la API
 class InscripcionService {
   
-  /// POST /inscripciones - Crea la inscripción
+  /// POST /inscripciones/inscripciones - Crea la inscripción
   Future<InscripcionResponse> crear(
     InscripcionRequest request,
     String token,
   ) async {
     try {
-      final url = Uri.parse(Endpoints.inscripcion());
+      final url = Uri.parse(Endpoints.inscripcion);
+      
+      print('🔵 Enviando inscripción a: $url');
+      print('🔵 Body: ${jsonEncode(request.toJson())}');
       
       final response = await http.post(
         url,
@@ -25,8 +27,13 @@ class InscripcionService {
         body: jsonEncode(request.toJson()),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
+      print('🔵 Status Code: ${response.statusCode}');
+      print('🔵 Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || 
+          response.statusCode == 201 || 
+          response.statusCode == 202) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
         return InscripcionResponse.fromJson(data);
       } else {
         throw Exception(
@@ -35,16 +42,20 @@ class InscripcionService {
         );
       }
     } catch (e) {
-      throw Exception('Error al crear inscripción: ${e.toString()}');
+      print('🔴 Error en crear(): $e');
+      rethrow;
     }
   }
 
-  /*Future<EstadoResponse> consultarEstado(
+  /// GET /inscripciones/estado/{uuid} - Consulta el estado
+  Future<EstadoResponse> consultarEstado(
     String transactionId,
     String token,
   ) async {
     try {
-      final url = Uri.parse(Endpoints.inscripcion(transactionId));
+      final url = Uri.parse(Endpoints.estadoInscripcion(transactionId));
+      
+      print('🟢 Consultando estado: $url');
       
       final response = await http.get(
         url,
@@ -54,8 +65,11 @@ class InscripcionService {
         },
       );
 
+      print('🟢 Status Code: ${response.statusCode}');
+      print('🟢 Response Body: ${response.body}');
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
         return EstadoResponse.fromJson(data);
       } else {
         throw Exception(
@@ -64,7 +78,8 @@ class InscripcionService {
         );
       }
     } catch (e) {
-      throw Exception('Error al consultar estado: ${e.toString()}');
+      print('🔴 Error en consultarEstado(): $e');
+      rethrow;
     }
-  }*/
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inscripcion_topicos/page/historial/widgets/tarjeta_historial.dart';
+import 'package:inscripcion_topicos/widgets/vista_error.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/historial_provider.dart';
 import '../../../providers/login_provider.dart';
@@ -19,7 +20,6 @@ class _HistorialPageState extends State<HistorialPage> {
     _cargarHistorialInicialmente();
   }
 
-  /// Llama al provider para cargar el historial usando el ID y Token del LoginProvider
   void _cargarHistorialInicialmente() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final loginProvider = Provider.of<LoginProvider>(context, listen: false);
@@ -40,36 +40,6 @@ class _HistorialPageState extends State<HistorialPage> {
     });
   }
 
-  // Método auxiliar para construir la vista de error
-  Widget _construirVistaError(HistorialProvider provider) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Error al cargar: ${provider.error}',
-            style: const TextStyle(color: Colors.red),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () async {
-              final loginProvider = context.read<LoginProvider>();
-              if (loginProvider.estudianteId != null) {
-                await provider.cargarHistorial(
-                  loginProvider.estudianteId!,
-                  loginProvider.token!,
-                );
-              }
-            },
-            child: const Text('Reintentar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Widget auxiliar para mostrar el promedio
   Widget _resumenPromedio(HistorialProvider provider) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -119,7 +89,10 @@ class _HistorialPageState extends State<HistorialPage> {
           }
 
           if (provider.error != null) {
-            return _construirVistaError(provider);
+            return VistaErrorWidget(
+              mensajeError: provider.error!,
+              onReintentar: () => provider.reintentarCargaHistorias(context),
+            );
           }
 
           if (provider.historial.isEmpty) {
@@ -141,9 +114,9 @@ class _HistorialPageState extends State<HistorialPage> {
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: provider.historial.length,
+                  itemCount: provider.historialOrdenado.length,
                   itemBuilder: (context, index) => HistorialTarjeta(
-                    item: provider.historial[index],
+                    item: provider.historialOrdenado[index], 
                   ),
                 ),
               ),

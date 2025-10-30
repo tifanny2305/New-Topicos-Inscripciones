@@ -4,13 +4,8 @@ import 'package:inscripcion_topicos/services/materia_service.dart';
 import 'package:provider/provider.dart';
 import '../models/materia.dart';
 
-/// Provider responsable de manejar el estado y la lógica
-/// relacionada con la selección y filtrado de materias.
 class MateriaProvider with ChangeNotifier {
-  // El servicio se recibe por inyección
   final MateriaService _servicioMateria;
-
-  // Constructor que recibe la dependencia
   MateriaProvider(this._servicioMateria);
 
   // Estado interno
@@ -55,16 +50,13 @@ class MateriaProvider with ChangeNotifier {
     }).toList();
   }
 
-  /// Retorna la lista única de niveles disponibles.
   List<String> get nivelesDisponibles =>
       _listaMaterias.map((m) => m.nivel.nombre).toSet().toList()..sort();
 
-  /// Retorna la lista única de tipos disponibles.
   List<String> get tiposDisponibles =>
       _listaMaterias.map((m) => m.tipo.nombre).toSet().toList();
 
   // Métodos públicos
-  /// Carga las materias desde el servicio remoto.
   Future<void> cargarMaterias(int estudianteId, String token) async {
     _establecerCarga(true);
 
@@ -83,7 +75,6 @@ class MateriaProvider with ChangeNotifier {
     _establecerCarga(false);
   }
 
-  /// Cambia el estado de selección de una materia.
   void alternarSeleccionMateria(Materia materia) {
     final index = _listaMaterias.indexWhere((m) => m.id == materia.id);
     if (index == -1) return;
@@ -101,7 +92,7 @@ class MateriaProvider with ChangeNotifier {
     notifyListeners();
   }
 
-   // Método auxiliar para construir la vista de error
+   // vista de error
   Future<void> reintentarCargaMaterias(BuildContext context) async {
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     final materiaProvider = Provider.of<MateriaProvider>(

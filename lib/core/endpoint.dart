@@ -1,5 +1,5 @@
 class Endpoints {
-  static const String baseUrl = 'https://6930408a9838.ngrok-free.app/api';
+  static const String baseUrl = 'https://cc658ee0ba09.ngrok-free.app/api';
   //static const String baseUrl = 'http://localhost:3005/api';
 
   //loguin
@@ -20,13 +20,17 @@ class Endpoints {
     return '$baseUrl/inscripciones/grupos/materia/$materiaId';
   }
 
-  // Historial académico del estudiante
+  //historial académico del estudiante
   static String historialEstudiante(int estudianteId) {
     return '$baseUrl/inscripciones/grupos/historial/$estudianteId';
   }
 
-  static String inscripcion() {
-    return '$baseUrl/inscripciones/inscripciones';
+  //inscripcion
+  static const String inscripcion = '$baseUrl/inscripciones/inscripciones';
+
+  //estado
+  static String estadoInscripcion(String uuid){
+    return '$baseUrl/inscripciones/estado/$uuid';
   }
 
   
