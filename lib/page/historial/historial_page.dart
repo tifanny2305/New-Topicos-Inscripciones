@@ -107,10 +107,8 @@ class _HistorialPageState extends State<HistorialPage> {
           // Vista principal con el resumen y la lista
           return Column(
             children: [
-              // Resumen del Promedio
               _resumenPromedio(provider),
 
-              // Lista de registros del historial
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
@@ -125,7 +123,6 @@ class _HistorialPageState extends State<HistorialPage> {
         },
       ),
       
-      // BottomNavigationBar aquí dentro del Scaffold
       bottomNavigationBar: const BarraInferior(indiceActual: 2),
     );
   }

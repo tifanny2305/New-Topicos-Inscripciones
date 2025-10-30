@@ -38,32 +38,31 @@ class InscripcionProvider with ChangeNotifier {
   bool get hayInscripcionPendiente => _transacciones.any((t) => t.esProcesando);
 
   /// Crea una inscripción y retorna el transactionId
-  Future<String> crearInscripcion(InscripcionRequest request, String token) async {
+  Future<String> crearInscripcion(
+    InscripcionRequest request,
+    String token,
+  ) async {
     _cargando = true;
     notifyListeners();
 
     try {
-      print('📝 Creando inscripción...');
       final response = await _service.crear(request, token);
-      print('✅ Transaction ID: ${response.transactionId}');
-      
+
       final nuevaTransaccion = TransaccionInfo(
         transactionId: response.transactionId,
         estadoActual: EstadoResponse(estado: 'procesando', datos: null),
       );
-      
+
       _transacciones.add(nuevaTransaccion);
 
       _cargando = false;
       notifyListeners();
 
       _iniciarPolling(token);
-      
+
       // Retornar el transactionId
       return response.transactionId;
-      
     } catch (e) {
-      print('❌ Error: $e');
       _cargando = false;
       notifyListeners();
       rethrow;
@@ -72,13 +71,16 @@ class InscripcionProvider with ChangeNotifier {
 
   void _iniciarPolling(String token) {
     _pollingTimer?.cancel();
-    _pollingTimer = Timer.periodic(_intervaloPolling, (_) => _consultarTodas(token));
+    _pollingTimer = Timer.periodic(
+      _intervaloPolling,
+      (_) => _consultarTodas(token),
+    );
     Future.delayed(const Duration(seconds: 2), () => _consultarTodas(token));
   }
 
   Future<void> _consultarTodas(String token) async {
     final pendientes = _transacciones.where((t) => t.esProcesando).toList();
-    
+
     for (var t in pendientes) {
       if (t.intentosPolling >= _maxIntentos) {
         t.error = 'Tiempo de espera excedido';
@@ -87,7 +89,6 @@ class InscripcionProvider with ChangeNotifier {
 
       try {
         t.intentosPolling++;
-        print('🔍 Consultando ${t.transactionId} (${t.intentosPolling}/$_maxIntentos)');
         t.estadoActual = await _service.consultarEstado(t.transactionId, token);
       } catch (e) {
         t.error = e.toString();

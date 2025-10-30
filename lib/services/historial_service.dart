@@ -19,7 +19,6 @@ class HistorialService {
       );
       
       if (response.statusCode == 200) {
-        // Deserialización del JSON (que es una lista) a List<HistorialItem>
         final historial = (jsonDecode(response.body) as List)
             .map((json) => Historial.fromJson(json))
             .toList();

@@ -42,12 +42,11 @@ class NotificacionesPage extends StatelessWidget {
     final color = t.error != null ? Colors.red : t.esProcesando ? Colors.orange : t.esExitoso ? Colors.green : Colors.red;
     final icono = t.error != null ? Icons.error : t.esProcesando ? Icons.sync : t.esExitoso ? Icons.check_circle : Icons.cancel;
     final titulo = t.error != null ? 'Error' : t.esProcesando ? 'Procesando...' : t.esExitoso ? 'Completada' : 'Fallida';
-    final mensaje = t.error ?? (t.esProcesando ? 'En cola' : t.esExitoso ? 'ID: ${t.estadoActual?.inscripcionId}' : 'No completada');
+    final mensaje = t.error ?? (t.esProcesando ? 'En cola' : t.esExitoso ? 'Inscripcion Completada' : 'No completada');
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        // ✅ CAMBIO: Siempre navega a estado-inscripcion
         onTap: () {
           Navigator.pushNamed(
             context,

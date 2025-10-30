@@ -10,7 +10,6 @@ class EstadoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Obtener el transactionId de los argumentos de la ruta
     final String? transactionId = ModalRoute.of(context)?.settings.arguments as String?;
 
     return Scaffold(
@@ -28,14 +27,12 @@ class EstadoPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Si no hay transactionId, mostrar error
           if (transactionId == null) {
             return const Center(
               child: Text('No se especificó una inscripción'),
             );
           }
 
-          // Buscar la transacción específica
           final transaccion = provider.transacciones.firstWhere(
             (t) => t.transactionId == transactionId,
             orElse: () => TransaccionInfo(

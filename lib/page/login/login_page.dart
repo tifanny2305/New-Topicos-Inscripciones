@@ -25,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  //Lógica de Autenticación
   Future<void> _autenticar() async {
 
     if (!_claveFormulario.currentState!.validate()) return;
@@ -74,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                     controladorRegistro: _controladorRegistro,
                     controladorCodigo: _controladorCodigo,
                     estaCargando: _estaCargando,
-                    alPresionarIngresar: _autenticar, // método de autenticación
+                    alPresionarIngresar: _autenticar,
                   ),
                 ],
               ),

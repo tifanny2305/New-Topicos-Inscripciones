@@ -54,14 +54,12 @@ class InscripcionPage extends StatelessWidget {
     );
 
     try {
-      // Capturar el transactionId retornado
       final transactionId = await inscripcionProvider.crearInscripcion(
         request,
         loginProvider.token!,
       );
 
       if (context.mounted) {
-        // Navegar con el transactionId
         Navigator.pushReplacementNamed(
           context,
           '/estado-inscripcion',

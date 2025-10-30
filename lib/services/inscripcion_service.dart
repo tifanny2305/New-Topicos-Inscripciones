@@ -7,17 +7,12 @@ import '../core/endpoint.dart';
 
 class InscripcionService {
   
-  /// POST /inscripciones/inscripciones - Crea la inscripción
   Future<InscripcionResponse> crear(
     InscripcionRequest request,
     String token,
   ) async {
     try {
-      final url = Uri.parse(Endpoints.inscripcion);
-      
-      print('🔵 Enviando inscripción a: $url');
-      print('🔵 Body: ${jsonEncode(request.toJson())}');
-      
+      final url = Uri.parse(Endpoints.inscripcion);    
       final response = await http.post(
         url,
         headers: {
@@ -26,9 +21,6 @@ class InscripcionService {
         },
         body: jsonEncode(request.toJson()),
       );
-
-      print('🔵 Status Code: ${response.statusCode}');
-      print('🔵 Response Body: ${response.body}');
 
       if (response.statusCode == 200 || 
           response.statusCode == 201 || 
@@ -42,21 +34,16 @@ class InscripcionService {
         );
       }
     } catch (e) {
-      print('🔴 Error en crear(): $e');
       rethrow;
     }
   }
 
-  /// GET /inscripciones/estado/{uuid} - Consulta el estado
   Future<EstadoResponse> consultarEstado(
     String transactionId,
     String token,
   ) async {
     try {
-      final url = Uri.parse(Endpoints.estadoInscripcion(transactionId));
-      
-      print('🟢 Consultando estado: $url');
-      
+      final url = Uri.parse(Endpoints.estadoInscripcion(transactionId));     
       final response = await http.get(
         url,
         headers: {
@@ -64,9 +51,6 @@ class InscripcionService {
           'Authorization': 'Bearer $token',
         },
       );
-
-      print('🟢 Status Code: ${response.statusCode}');
-      print('🟢 Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -78,7 +62,6 @@ class InscripcionService {
         );
       }
     } catch (e) {
-      print('🔴 Error en consultarEstado(): $e');
       rethrow;
     }
   }

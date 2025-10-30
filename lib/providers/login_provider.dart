@@ -9,10 +9,7 @@ class LoginProvider with ChangeNotifier {
   int? _estudianteId;
   bool _estaAutenticado = false;
 
-  // Servicio de login
   final LoginService _loginService;
-
-  // Constructor - recibe el servicio por inyección de dependencias
   LoginProvider(this._loginService);
 
   // Getters para acceder al estado
@@ -21,22 +18,17 @@ class LoginProvider with ChangeNotifier {
   int? get estudianteId => _estudianteId;
   bool get estaAutenticado => _estaAutenticado;
 
-  /// Retorna true si el login fue exitoso, false en caso contrario
   Future<bool> iniciarSesion(String registro, String codigo) async {
     try {
-      //Llamar al servicio para autenticar
       final resultado = await _loginService.iniciarSesion(registro, codigo);
 
-      //Actualizar el estado con los datos obtenidos
       _registro = resultado['registro'];
       _token = resultado['token'];
       _estudianteId = resultado['estudianteId'];
       _estaAutenticado = true;
 
-      // Guardar datos en persistencia local
       await _guardarDatosLocales();
 
-      //Notificar a los listeners
       notifyListeners();
 
       return true;

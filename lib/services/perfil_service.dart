@@ -4,12 +4,9 @@ import '../core/endpoint.dart';
 import '../models/estudiante.dart';
 
 class PerfilService {
-  /// Obtiene la información detallada del perfil del estudiante.
   Future<Estudiante> obtenerPerfil(int estudianteId, String token) async {
     try {
       final url = Uri.parse(Endpoints.perfilEstudiante(estudianteId));
-      
-      // La solicitud requiere el token de autenticación (Bearer Token)
       final response = await http.get(
         url,
         headers: {

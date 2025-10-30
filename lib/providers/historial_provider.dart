@@ -32,7 +32,6 @@ class HistorialProvider with ChangeNotifier {
     return sumatoriaNotas / historialConNotaFinal.length;
   }
 
-  /// Carga el historial académico del estudiante usando el ID y el token de autenticación
   Future<void> cargarHistorial(int estudianteId, String token) async {
     _establecerCarga(true);
 

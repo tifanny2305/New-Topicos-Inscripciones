@@ -1,6 +1,6 @@
 class Historial {
   final String materia;
-  final double? nota; // <--- ¡Cambiado a nullable!
+  final double? nota;
   final int grupoId;
 
   Historial({
